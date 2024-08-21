@@ -14,6 +14,7 @@ public class GuessWord {
     private static Set<String> absentLettersSet;
     private String pattern;
     private String lastPattern;
+    private int step;
 
     public GuessWord(String filePath) {
         words = new ArrayList<>();
@@ -22,6 +23,7 @@ public class GuessWord {
         pattern = "*****";
         lastPattern = pattern;
         loadWords(filePath);
+        step = 0;  // Инициализация шага
     }
 
     // Метод для загрузки слов из файла
@@ -38,46 +40,57 @@ public class GuessWord {
 
     // Метод для обработки ввода пользователя
     public String processInput(String input) {
-        String[] commands = input.split(":");
-        if (commands.length > 1) {
-            String commandType = commands[0].trim();
-            String commandData = commands[1].trim();
+        input = input.trim().toLowerCase();
 
-            if (commandType.equalsIgnoreCase("present")) {
-                for (String letter : commandData.split(",")) {
-                    presentLettersSet.add(letter.trim());
+        switch (step) {
+            case 0:
+                step++;
+                return "Введите буквы, корые ИЗВЕСТНЫ через запятую, либо введите 0.";
+
+            case 1:
+                if (!input.equals("0")) {
+                    for (String letter : input.split(",")) {
+                        presentLettersSet.add(letter.trim());
+                    }
                 }
-            } else if (commandType.equalsIgnoreCase("absent")) {
-                for (String letter : commandData.split(",")) {
-                    absentLettersSet.add(letter.trim());
+                step++;
+                return "Введите буквы, которые ОТСУТСТВУЮТ, через запятую, либо введите 0.";
+
+            case 2:
+                if (!input.equals("0")) {
+                    for (String letter : input.split(",")) {
+                        absentLettersSet.add(letter.trim());
+                    }
                 }
-            } else if (commandType.equalsIgnoreCase("pattern")) {
-                if (commandData.length() == 5) {
-                    lastPattern = commandData;
-                    pattern = commandData;
+                step++;
+                return "Введите шаблон по примеру \"*о*о*\", либо введите 0.";
+
+            case 3:
+                if (!input.equals("0")) {
+                    if (input.length() == 5) {
+                        lastPattern = input;
+                        pattern = input;
+                    } else {
+                        return "Ошибка: шаблон должен содержать ровно 5 символов.";
+                    }
+                }
+
+                List<String> possibleWords = words.stream()
+                        .filter(word -> presentLettersSet.stream().allMatch(word::contains))
+                        .filter(word -> absentLettersSet.stream().noneMatch(word::contains))
+                        .filter(this::matchesPattern)
+                        .toList();
+
+                step = 0;  // Сброс шага для новой игры
+
+                if (possibleWords.isEmpty()) {
+                    return "Нет подходящих слов.";
                 } else {
-                    return "Ошибка: шаблон должен содержать ровно 5 символов.";
+                    return "Возможные слова:\n" + String.join("\n", possibleWords);
                 }
-            } else if (commandType.equalsIgnoreCase("reset")) {
-                reset();
-                return "Данные сброшены.";
-            } else {
-                return "Неизвестная команда.";
-            }
 
-            List<String> possibleWords = words.stream()
-                    .filter(word -> presentLettersSet.stream().allMatch(word::contains))
-                    .filter(word -> absentLettersSet.stream().noneMatch(word::contains))
-                    .filter(this::matchesPattern)
-                    .toList();
-
-            if (possibleWords.isEmpty()) {
-                return "Нет подходящих слов.";
-            } else {
-                return "Возможные слова:\n" + String.join("\n", possibleWords);
-            }
-        } else {
-            return "Неверный формат ввода. Используйте: present:а,б; absent:в,г; pattern:*о*о*";
+            default:
+                return "Произошла ошибка. Попробуйте снова.";
         }
     }
 
@@ -98,5 +111,6 @@ public class GuessWord {
         absentLettersSet.clear();
         pattern = "*****";
         lastPattern = pattern;
+        step = 0;
     }
 }
