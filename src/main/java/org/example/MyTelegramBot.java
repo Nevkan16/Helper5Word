@@ -1,13 +1,19 @@
 package org.example;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class MyTelegramBot extends TelegramLongPollingBot {
+
+    private final GuessWord guessWord;
+
+    public MyTelegramBot() {
+        guessWord = new GuessWord("D:\\Java\\IdeaProjects\\NET project\\GuessWord2\\resources\\russian5word.txt");
+    }
 
     @Override
     public String getBotUsername() {
@@ -21,18 +27,28 @@ public class MyTelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        // Логика обработки сообщений
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
-            // Создаем ответное сообщение
             SendMessage message = new SendMessage();
             message.setChatId(String.valueOf(chatId));
-            message.setText("Вы написали: " + messageText);
+
+            // Проверка на команду /start
+            if (messageText.equals("/start")) {
+                message.setText("Привет! Я бот для игры в угадывание слов. Используйте команды:\n" +
+                        " - present:а,б — добавить буквы, которые есть в слове.\n" +
+                        " - absent:в,г — добавить буквы, которых нет в слове.\n" +
+                        " - pattern:*о*о* — установить шаблон, где * заменяет неизвестные буквы.\n" +
+                        " - reset — сбросить данные и начать заново.");
+            } else {
+                // Обработка остальных команд
+                String responseText = guessWord.processInput(messageText);
+                message.setText(responseText);
+            }
 
             try {
-                execute(message); // Отправляем сообщение
+                execute(message); // Отправляем сообщение пользователю
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -40,7 +56,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     }
 
     public static void main(String[] args) throws TelegramApiException {
-        // Регистрируем бот
+        // Регистрируем бота
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
             botsApi.registerBot(new MyTelegramBot());
