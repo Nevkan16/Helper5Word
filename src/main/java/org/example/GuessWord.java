@@ -44,7 +44,11 @@ public class GuessWord {
             switch (step) {
                 case 0 -> {
                     step++;
-                    return response.append("\n\nВведите буквы, которые ИЗВЕСТНЫ через запятую, либо введите 0.").toString();
+                    return response.append("""
+
+
+                            Введите буквы, которые ИЗВЕСТНЫ через запятую, либо введите "0".
+                            Для перезапуска введите "1".""").toString();
                 }
                 case 1 -> {
                     if (!input.equals("0")) {
@@ -53,7 +57,8 @@ public class GuessWord {
                         }
                     }
                     step++;
-                    return response.append("Введите буквы, которые ОТСУТСТВУЮТ, через запятую, либо введите 0.").toString();
+                    return response.append("Введите буквы, которые ОТСУТСТВУЮТ, через запятую, либо введите \"0\".\n" +
+                            "Для перезапуска введите \"1\".").toString();
                 }
                 case 2 -> {
                     if (!input.equals("0")) {
@@ -62,7 +67,8 @@ public class GuessWord {
                         }
                     }
                     step++;
-                    return response.append("Введите шаблон по примеру \"*о*о*\", либо введите 0.").toString();
+                    return response.append("Введите шаблон по примеру \"*о*о*\", либо введите \"0\".\n" +
+                            "Для перезапуска введите \"1\".").toString();
                 }
                 case 3 -> {
                     if (!input.equals("0")) {
