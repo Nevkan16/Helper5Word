@@ -13,7 +13,6 @@ public class GuessWord {
     private static Set<String> presentLettersSet;
     private static Set<String> absentLettersSet;
     private String pattern;
-    private String lastPattern;
     private int step;
 
     public GuessWord(String filePath) {
@@ -21,7 +20,6 @@ public class GuessWord {
         presentLettersSet = new HashSet<>();
         absentLettersSet = new HashSet<>();
         pattern = "*****";
-        lastPattern = pattern;
         loadWords(filePath);
         step = 0;  // Инициализация шага
     }
@@ -38,61 +36,64 @@ public class GuessWord {
         }
     }
 
-    // Метод для обработки ввода пользователя
     public String processInput(String input) {
         input = input.trim().toLowerCase();
+        StringBuilder response = new StringBuilder();
 
-        switch (step) {
-            case 0:
-                step++;
-                return "Введите буквы, которые ИЗВЕСТНЫ через запятую, либо введите 0.";
-
-            case 1:
-                if (!input.equals("0")) {
-                    for (String letter : input.split(",")) {
-                        presentLettersSet.add(letter.trim());
-                    }
+        while (true) {
+            switch (step) {
+                case 0 -> {
+                    step++;
+                    return response.append("\n\nВведите буквы, которые ИЗВЕСТНЫ через запятую, либо введите 0.").toString();
                 }
-                step++;
-                return "Введите буквы, которые ОТСУТСТВУЮТ, через запятую, либо введите 0.";
-
-            case 2:
-                if (!input.equals("0")) {
-                    for (String letter : input.split(",")) {
-                        absentLettersSet.add(letter.trim());
+                case 1 -> {
+                    if (!input.equals("0")) {
+                        for (String letter : input.split(",")) {
+                            presentLettersSet.add(letter.trim());
+                        }
                     }
+                    step++;
+                    return response.append("Введите буквы, которые ОТСУТСТВУЮТ, через запятую, либо введите 0.").toString();
                 }
-                step++;
-                return "Введите шаблон по примеру \"*о*о*\", либо введите 0.";
-
-            case 3:
-                if (!input.equals("0")) {
-                    if (input.length() == 5) {
-                        lastPattern = input;
-                        pattern = input;
+                case 2 -> {
+                    if (!input.equals("0")) {
+                        for (String letter : input.split(",")) {
+                            absentLettersSet.add(letter.trim());
+                        }
+                    }
+                    step++;
+                    return response.append("Введите шаблон по примеру \"*о*о*\", либо введите 0.").toString();
+                }
+                case 3 -> {
+                    if (!input.equals("0")) {
+                        if (input.length() == 5) {
+                            pattern = input;
+                        } else {
+                            return "Ошибка: шаблон должен содержать ровно 5 символов.";
+                        }
+                    }
+                    List<String> possibleWords = words.stream()
+                            .filter(word -> presentLettersSet.stream().allMatch(word::contains))
+                            .filter(word -> absentLettersSet.stream().noneMatch(word::contains))
+                            .filter(this::matchesPattern)
+                            .toList();
+                    step = 0;  // Сброс шага для новой игры
+                    if (possibleWords.isEmpty()) {
+                        response.append("Нет подходящих слов.");
                     } else {
-                        return "Ошибка: шаблон должен содержать ровно 5 символов.";
+                        response.append("Возможные слова:\n").append(String.join("\n", possibleWords));
                     }
+
+                    // Автоматический переход к началу нового цикла
+                    input = "";  // Пустой ввод для перехода к следующему шагу
                 }
-
-                List<String> possibleWords = words.stream()
-                        .filter(word -> presentLettersSet.stream().allMatch(word::contains))
-                        .filter(word -> absentLettersSet.stream().noneMatch(word::contains))
-                        .filter(this::matchesPattern)
-                        .toList();
-
-                step = 0;  // Сброс шага для новой игры
-
-                if (possibleWords.isEmpty()) {
-                    return "Нет подходящих слов.";
-                } else {
-                    return "Возможные слова:\n" + String.join("\n", possibleWords);
+                default -> {
+                    return response.append("Произошла ошибка. Попробуйте снова.").toString();
                 }
-
-            default:
-                return "Произошла ошибка. Попробуйте снова.";
+            }
         }
     }
+
 
     // Метод для проверки соответствия слова шаблону
     private boolean matchesPattern(String word) {
@@ -110,7 +111,6 @@ public class GuessWord {
         presentLettersSet.clear();
         absentLettersSet.clear();
         pattern = "*****";
-        lastPattern = pattern;
         step = 0;
     }
 }

@@ -37,16 +37,16 @@ public class MyTelegramBot extends TelegramLongPollingBot {
 
                 // Начать игру сразу после приветствия
                 String initialResponse = guessWord.processInput("");
-                sendLongMessage(chatId, initialResponse, true);  // Передаем true для выполнения следующего шага после отправки
+                sendLongMessage(chatId, initialResponse);  // Передаем true для выполнения следующего шага после отправки
             } else {
                 // Обрабатываем последующие сообщения в игре
                 String responseText = guessWord.processInput(messageText);
-                sendLongMessage(chatId, responseText, false);  // Передаем false, так как выполнение следующего шага не требуется
+                sendLongMessage(chatId, responseText);  // Передаем false, так как выполнение следующего шага не требуется
             }
         }
     }
 
-    private void sendLongMessage(long chatId, String text, boolean proceedToNextStep) {
+    private void sendLongMessage(long chatId, String text) {
         int maxLines = 20;
         String[] lines = text.split("\n");
         StringBuilder messagePart = new StringBuilder();
