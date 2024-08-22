@@ -28,40 +28,37 @@ public class MyTelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText();
+            String messageText = update.getMessage().getText().trim();
             long chatId = update.getMessage().getChatId();
 
-            SendMessage message = new SendMessage();
-            message.setChatId(String.valueOf(chatId));
-
             if (messageText.equals("/start") || messageText.equals("1")) {
-                // Initial greeting message
-                message.setText("Привет! Я бот для игры в угадывание слов. Для перезапуска введите \"1\"");
-                try {
-                    execute(message);  // Send the greeting message
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
+                guessWord.reset();  // Сброс игры
+                sendMessage(chatId, "Привет! Я бот для игры в угадывание слов. Для перезапуска введите \"1\"");
 
-                // Start the game immediately after the greeting
-                String initialResponse = guessWord.processInput("");  // Initiate the first step
-                message.setText(initialResponse);
+                // Начать игру сразу после приветствия
+                String initialResponse = guessWord.processInput("");  // Начать с первого шага
+                sendMessage(chatId, initialResponse);  // Отправить запрос на ввод известных букв
             } else {
-                // Process subsequent messages in the game
+                // Обрабатываем последующие сообщения в игре
                 String responseText = guessWord.processInput(messageText);
-                message.setText(responseText);
-            }
-
-            try {
-                execute(message);  // Send the response message
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+                sendMessage(chatId, responseText);  // Отправить результат обработки
             }
         }
     }
 
+    private void sendMessage(long chatId, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(text);
+        try {
+            execute(message);  // Отправить сообщение
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws TelegramApiException {
-        // Register the bot
+        // Регистрация бота
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         try {
             botsApi.registerBot(new MyTelegramBot());
