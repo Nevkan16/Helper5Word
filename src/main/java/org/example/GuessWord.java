@@ -45,7 +45,7 @@ public class GuessWord {
         switch (step) {
             case 0:
                 step++;
-                return "Введите буквы, корые ИЗВЕСТНЫ через запятую, либо введите 0.";
+                return "Введите буквы, которые ИЗВЕСТНЫ через запятую, либо введите 0.";
 
             case 1:
                 if (!input.equals("0")) {

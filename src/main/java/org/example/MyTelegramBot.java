@@ -36,13 +36,34 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId, "Привет! Я бот для игры в угадывание слов. Для перезапуска введите \"1\"");
 
                 // Начать игру сразу после приветствия
-                String initialResponse = guessWord.processInput("");  // Начать с первого шага
-                sendMessage(chatId, initialResponse);  // Отправить запрос на ввод известных букв
+                String initialResponse = guessWord.processInput("");
+                sendLongMessage(chatId, initialResponse, true);  // Передаем true для выполнения следующего шага после отправки
             } else {
                 // Обрабатываем последующие сообщения в игре
                 String responseText = guessWord.processInput(messageText);
-                sendMessage(chatId, responseText);  // Отправить результат обработки
+                sendLongMessage(chatId, responseText, false);  // Передаем false, так как выполнение следующего шага не требуется
             }
+        }
+    }
+
+    private void sendLongMessage(long chatId, String text, boolean proceedToNextStep) {
+        int maxLines = 20;
+        String[] lines = text.split("\n");
+        StringBuilder messagePart = new StringBuilder();
+
+        int lineCounter = 0;
+        for (String line : lines) {
+            if (lineCounter == maxLines) {
+                sendMessage(chatId, messagePart.toString());
+                messagePart = new StringBuilder();
+                lineCounter = 0;
+            }
+            messagePart.append(line).append("\n");
+            lineCounter++;
+        }
+
+        if (messagePart.length() > 0) {
+            sendMessage(chatId, messagePart.toString());
         }
     }
 
