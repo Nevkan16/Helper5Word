@@ -34,14 +34,11 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             if (messageText.equals("/start") || messageText.equals("1")) {
                 guessWord.reset();  // Сброс игры
                 sendMessage(chatId, "Привет! Я бот для игры в угадывание слов. Для перезапуска введите \"1\"");
-
-                // Начать игру сразу после приветствия
                 String initialResponse = guessWord.processInput("");
                 sendLongMessage(chatId, initialResponse);  // Передаем true для выполнения следующего шага после отправки
             } else {
-                // Обрабатываем последующие сообщения в игре
                 String responseText = guessWord.processInput(messageText);
-                sendLongMessage(chatId, responseText);  // Передаем false, так как выполнение следующего шага не требуется
+                sendLongMessage(chatId, responseText);
             }
         }
     }

@@ -81,7 +81,7 @@ public class GuessWord {
                     if (possibleWords.isEmpty()) {
                         response.append("Нет подходящих слов.");
                     } else {
-                        response.append("Возможные слова:\n").append(String.join("\n", possibleWords));
+                        response.append("Возможные слова:\n").append(formatWordsInColumns(possibleWords));
                     }
 
                     // Автоматический переход к началу нового цикла
@@ -94,8 +94,22 @@ public class GuessWord {
         }
     }
 
+    private String formatWordsInColumns(List<String> words) {
+        StringBuilder formattedWords = new StringBuilder();
+        int columnCount = 5;
 
-    // Метод для проверки соответствия слова шаблону
+        for (int i = 0; i < words.size(); i++) {
+            formattedWords.append(words.get(i));
+            if ((i + 1) % columnCount == 0) {
+                formattedWords.append("\n"); // Переход на новую строку после каждого пятого слова
+            } else {
+                formattedWords.append("\t"); // Добавление табуляции между словами
+            }
+        }
+
+        return formattedWords.toString();
+    }
+
     private boolean matchesPattern(String word) {
         for (int i = 0; i < pattern.length(); i++) {
             char patternChar = pattern.charAt(i);
@@ -106,7 +120,6 @@ public class GuessWord {
         return true;
     }
 
-    // Метод для сброса данных
     public void reset() {
         presentLettersSet.clear();
         absentLettersSet.clear();
