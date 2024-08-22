@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -9,10 +11,11 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class MyTelegramBot extends TelegramLongPollingBot {
 
-    private final GuessWord guessWord;
+    // Карта для хранения состояний пользователей
+    private final Map<Long, GuessWord> userGames;
 
     public MyTelegramBot() {
-        guessWord = new GuessWord("D:\\Java\\IdeaProjects\\NET project\\GuessWord2\\resources\\russian5word.txt");
+        userGames = new HashMap<>();
     }
 
     @Override
@@ -30,12 +33,19 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText().trim();
             long chatId = update.getMessage().getChatId();
+            String username = update.getMessage().getFrom().getUserName();  // Получаем имя пользователя
+
+            // Логируем имя пользователя и его сообщение
+            System.out.println("User: " + (username != null ? username : "Unknown") + " - Message: " + messageText);
+
+            // Получаем текущее состояние игры для данного пользователя
+            GuessWord guessWord = userGames.computeIfAbsent(chatId, id -> new GuessWord("D:\\Java\\IdeaProjects\\NET project\\GuessWord2\\resources\\russian5word.txt"));
 
             if (messageText.equals("/start") || messageText.equals("1")) {
                 guessWord.reset();  // Сброс игры
                 sendMessage(chatId, "Привет! Я бот для игры в угадывание слов. Для перезапуска введите \"1\"");
                 String initialResponse = guessWord.processInput("");
-                sendLongMessage(chatId, initialResponse);  // Передаем true для выполнения следующего шага после отправки
+                sendLongMessage(chatId, initialResponse);
             } else {
                 String responseText = guessWord.processInput(messageText);
                 sendLongMessage(chatId, responseText);
