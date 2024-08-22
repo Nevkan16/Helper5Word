@@ -43,7 +43,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
 
             if (messageText.equals("/start") || messageText.equals("1")) {
                 guessWord.reset();  // Сброс игры
-                sendMessage(chatId, "Привет! Я бот, который поможет угадать слово из 5 букв! Для перезапуска введите \"1\"");
+                sendMessage(chatId, "Привет! Я бот, который поможет угадать слово из 5 букв! Поехали!");
                 String initialResponse = guessWord.processInput("");
                 sendLongMessage(chatId, initialResponse);
             } else {

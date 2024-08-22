@@ -90,8 +90,7 @@ public class GuessWord {
                         response.append("Возможные слова:\n").append(formatWordsInColumns(possibleWords));
                     }
 
-                    // Автоматический переход к началу нового цикла
-                    input = "";  // Пустой ввод для перехода к следующему шагу
+                    input = "";
                 }
                 default -> {
                     return response.append("Произошла ошибка. Попробуйте снова.").toString();
@@ -107,9 +106,9 @@ public class GuessWord {
         for (int i = 0; i < words.size(); i++) {
             formattedWords.append(words.get(i));
             if ((i + 1) % columnCount == 0) {
-                formattedWords.append("\n"); // Переход на новую строку после каждого пятого слова
+                formattedWords.append("\n");
             } else {
-                formattedWords.append("\t"); // Добавление табуляции между словами
+                formattedWords.append("\t");
             }
         }
 
