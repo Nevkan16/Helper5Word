@@ -68,7 +68,7 @@ public class GuessWord {
                         }
                     }
                     step++;
-                    return response.append("Введите шаблон по примеру \"*о*о*\". Если ничего не известно, введите \"0\".\n" +
+                    return response.append("Введите шаблон по примеру \"=м=т=\". Если ничего не известно, введите \"0\".\n" +
                             "Для перезапуска введите \"/1\".").toString();
                 }
                 case 3 -> {
@@ -119,7 +119,7 @@ public class GuessWord {
     private boolean matchesPattern(String word) {
         for (int i = 0; i < pattern.length(); i++) {
             char patternChar = pattern.charAt(i);
-            if (patternChar != '*' && word.charAt(i) != patternChar) {
+            if (patternChar != '=' && word.charAt(i) != patternChar) {
                 return false;
             }
         }
