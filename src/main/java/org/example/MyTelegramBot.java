@@ -1,5 +1,6 @@
 package org.example;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -34,14 +35,15 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText().trim();
             long chatId = update.getMessage().getChatId();
             String username = update.getMessage().getFrom().getUserName();  // Получаем имя пользователя
+            LocalDateTime dateTime = LocalDateTime.now();
 
             // Логируем имя пользователя и его сообщение
-            System.out.println("User: " + (username != null ? username : "Unknown") + " - Message: " + messageText);
+            System.out.println("Time: " + dateTime + " User: " + (username != null ? username : "Unknown") + " - Message: " + messageText);
 
             // Получаем текущее состояние игры для данного пользователя
             GuessWord guessWord = userGames.computeIfAbsent(chatId, id -> new GuessWord("D:\\Java\\IdeaProjects\\NET project\\GuessWord2\\resources\\russian5word.txt"));
 
-            if (messageText.equals("/start") || messageText.equals("1")) {
+            if (messageText.equals("/start") || messageText.equals("/1")) {
                 guessWord.reset();  // Сброс игры
                 sendMessage(chatId, "Привет! Я бот, который поможет угадать слово из 5 букв! Поехали!");
                 String initialResponse = guessWord.processInput("");
