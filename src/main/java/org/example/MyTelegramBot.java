@@ -41,7 +41,7 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             System.out.println("Time: " + dateTime + " User: " + (username != null ? username : "Unknown") + " - Message: " + messageText);
 
             // Получаем текущее состояние игры для данного пользователя
-            GuessWord guessWord = userGames.computeIfAbsent(chatId, id -> new GuessWord("D:\\Java\\IdeaProjects\\NET project\\GuessWord2\\resources\\russian5word.txt"));
+            GuessWord guessWord = userGames.computeIfAbsent(chatId, id -> new GuessWord("src/main/resources/5letterRusWord.txt"));
 
             if (messageText.equals("/start") || messageText.equals("/1")) {
                 guessWord.reset();  // Сброс игры
