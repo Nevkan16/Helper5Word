@@ -19,7 +19,7 @@ public class GuessWord {
         words = new ArrayList<>();
         presentLettersSet = new HashSet<>();
         absentLettersSet = new HashSet<>();
-        pattern = "*****";
+        pattern = "=====";
         loadWords(filePath);
         step = 0;  // Инициализация шага
     }
@@ -129,7 +129,7 @@ public class GuessWord {
     public void reset() {
         presentLettersSet.clear();
         absentLettersSet.clear();
-        pattern = "*****";
+        pattern = "=====";
         step = 0;
     }
 }
