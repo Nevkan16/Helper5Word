@@ -1,6 +1,7 @@
 package org.example;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -36,12 +37,15 @@ public class MyTelegramBot extends TelegramLongPollingBot {
             long chatId = update.getMessage().getChatId();
             String username = update.getMessage().getFrom().getUserName();  // Получаем имя пользователя
             LocalDateTime dateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
             // Логируем имя пользователя и его сообщение
-            System.out.println("Time: " + dateTime + " User: " + (username != null ? username : "Unknown") + " - Message: " + messageText);
+            System.out.println("Time: " + formatter.format(dateTime) + " User: " +
+                    (username != null ? username : "Unknown") + " - Message: " + messageText);
 
             // Получаем текущее состояние игры для данного пользователя
-            GuessWord guessWord = userGames.computeIfAbsent(chatId, id -> new GuessWord("src/main/resources/5letterRusWord.txt"));
+            GuessWord guessWord = userGames.computeIfAbsent(chatId, id ->
+                    new GuessWord("src/main/resources/5letterRusWord.txt"));
 
             if (messageText.equals("/start") || messageText.equals("/1")) {
                 guessWord.reset();  // Сброс игры
