@@ -1,33 +1,51 @@
 package org.example;
 
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import java.util.Properties;
 
-public class MyTelegramBot extends TelegramLongPollingBot {
+public class Helper5WordBot extends TelegramLongPollingBot {
+    private final String botUsername;
+    private final String botToken;
 
     // Карта для хранения состояний пользователей
     private final Map<Long, GuessWord> userGames;
 
-    public MyTelegramBot() {
+    public Helper5WordBot() {
+        Properties properties = new Properties();
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+            if (input == null) {
+                System.out.println("Sorry, unable to find application.properties");
+                throw new RuntimeException("Cannot find application.properties");
+            }
+            properties.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException("Error loading properties", ex);
+        }
+
+        this.botUsername = properties.getProperty("bot.username");
+        this.botToken = properties.getProperty("bot.token");
         userGames = new HashMap<>();
     }
 
     @Override
     public String getBotUsername() {
-        return "Helper5Word_bot";  // Замените на имя вашего бота
+        return botUsername;  // Замените на имя вашего бота
     }
 
     @Override
     public String getBotToken() {
-        return "7070579986:AAHhl8hUpGWIIUgNL0Cj95tXCmXU0stQuCc";  // Замените на ваш токен API
+        return botToken;  // Замените на ваш токен API
     }
 
     @Override
@@ -91,13 +109,5 @@ public class MyTelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    public static void main(String[] args) throws TelegramApiException {
-        // Регистрация бота
-        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-        try {
-            botsApi.registerBot(new MyTelegramBot());
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
+
 }
