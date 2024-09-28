@@ -1,3 +1,4 @@
+Config\BotConfig.class
 org\example\BotMain.class
 org\example\GuessWord.class
 org\example\Helper5WordBot.class

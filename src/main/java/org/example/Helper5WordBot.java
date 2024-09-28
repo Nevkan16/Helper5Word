@@ -1,77 +1,66 @@
 package org.example;
 
+import Config.BotConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class Helper5WordBot extends TelegramLongPollingBot {
-    private final String botUsername;
-    private final String botToken;
+    private static final Logger logger = LoggerFactory.getLogger(Helper5WordBot.class);
+    private final BotConfig config;
 
     // Карта для хранения состояний пользователей
     private final Map<Long, GuessWord> userGames;
 
-    public Helper5WordBot() {
-        Properties properties = new Properties();
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
-            if (input == null) {
-                System.out.println("Sorry, unable to find application.properties");
-                throw new RuntimeException("Cannot find application.properties");
-            }
-            properties.load(input);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            throw new RuntimeException("Error loading properties", ex);
-        }
-
-        this.botUsername = properties.getProperty("bot.username");
-        this.botToken = properties.getProperty("bot.token");
+    public Helper5WordBot(BotConfig config) {
+        this.config = config;
         userGames = new HashMap<>();
+
+        logger.info("Бот {} успешно запущен", this.config.getBotName());
     }
 
     @Override
     public String getBotUsername() {
-        return botUsername;  // Замените на имя вашего бота
+        return config.getBotName();  // Замените на имя вашего бота
     }
 
     @Override
     public String getBotToken() {
-        return botToken;  // Замените на ваш токен API
+        return config.getToken();  // Замените на ваш токен API
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText().trim();
+            String inputText = update.getMessage().getText().trim();
             long chatId = update.getMessage().getChatId();
             String username = update.getMessage().getFrom().getUserName();  // Получаем имя пользователя
             LocalDateTime dateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
             // Логируем имя пользователя и его сообщение
-            System.out.println("Time: " + formatter.format(dateTime) + " User: " +
-                    (username != null ? username : "Unknown") + " - Message: " + messageText);
+            logger.info("Time: {} User: {} - Message: {}", formatter.format(dateTime),
+                    (username != null ? username : "Unknown"), inputText);
 
             // Получаем текущее состояние игры для данного пользователя
             GuessWord guessWord = userGames.computeIfAbsent(chatId, id ->
                     new GuessWord("src/main/resources/5letterRusWord.txt"));
 
-            if (messageText.equals("/start") || messageText.equals("/1")) {
+            if (inputText.equals("/start") || inputText.equals("/1")) {
                 guessWord.reset();  // Сброс игры
-                sendMessage(chatId, "Привет! Я бот, который поможет угадать слово из 5 букв! Поехали!");
+                sendMessage(chatId, "Привет, " + username + "!\nЯ бот, который поможет угадать слово из 5 букв! Поехали!");
                 String initialResponse = guessWord.processInput("");
                 sendLongMessage(chatId, initialResponse);
             } else {
-                String responseText = guessWord.processInput(messageText);
+                String responseText = guessWord.processInput(inputText);
                 sendLongMessage(chatId, responseText);
             }
         }
@@ -108,6 +97,4 @@ public class Helper5WordBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
-
 }
