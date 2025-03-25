@@ -2,10 +2,7 @@ package org.example;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GuessWord {
     private final List<String> words;
@@ -25,7 +22,8 @@ public class GuessWord {
 
     // Метод для загрузки слов из файла
     private void loadWords(String filePath) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(filePath)), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 words.add(line.trim().toLowerCase());

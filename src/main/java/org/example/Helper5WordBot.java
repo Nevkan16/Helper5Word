@@ -1,8 +1,7 @@
 package org.example;
 
 import Config.BotConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -12,29 +11,24 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-
+@Slf4j
 public class Helper5WordBot extends TelegramLongPollingBot {
-    private static final Logger logger = LoggerFactory.getLogger(Helper5WordBot.class);
-    private final BotConfig config;
 
+    private final BotConfig config;
     // Карта для хранения состояний пользователей
     private final Map<Long, GuessWord> userGames;
 
     public Helper5WordBot(BotConfig config) {
+        super(config.getToken());
         this.config = config;
-        userGames = new HashMap<>();
+        this.userGames = new HashMap<>();
 
-        logger.info("Бот {} успешно запущен", this.config.getBotName());
+        log.info("Бот {} успешно запущен", this.config.getBotName());
     }
 
     @Override
     public String getBotUsername() {
         return config.getBotName();  // Замените на имя вашего бота
-    }
-
-    @Override
-    public String getBotToken() {
-        return config.getToken();  // Замените на ваш токен API
     }
 
     @Override
@@ -47,12 +41,12 @@ public class Helper5WordBot extends TelegramLongPollingBot {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
             // Логируем имя пользователя и его сообщение
-            logger.info("Time: {} User: {} - Message: {}", formatter.format(dateTime),
+            log.info("Time: {} User: {} - Message: {}", formatter.format(dateTime),
                     (username != null ? username : "Unknown"), inputText);
 
             // Получаем текущее состояние игры для данного пользователя
             GuessWord guessWord = userGames.computeIfAbsent(chatId, id ->
-                    new GuessWord("src/main/resources/5letterRusWord.txt"));
+                    new GuessWord("5letterRusWord.txt"));
 
             if (inputText.equals("/start") || inputText.equals("/1")) {
                 guessWord.reset();  // Сброс игры
